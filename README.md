@@ -12,7 +12,7 @@ This repository houses all scripts, configuration, and documentation required to
 ## Immediate Roadmap
 
 - [x] Create repo skeleton and this README
-- [ ] Add `modelctl` shell script for starting/stopping 30 B & 70 B containers
+- [x] Add `modelctl` shell script for starting/stopping 30 B & 70 B containers
 - [ ] Add lightweight `docker-compose.yml` for both containers
 - [ ] Implement proxy layer with model-switch endpoint
 - [ ] Define switching heuristics and encode them in the assistant or proxy
