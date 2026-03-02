@@ -60,4 +60,3 @@ If/when we want blue/green or concurrent models, we can graduate to Compose or k
 3. (Future) Add a small Python/Flask admin endpoint that calls the script so agents can `curl /admin/switch/70b`.
 
 ---
-_Authored by Keystone with love ❤️_

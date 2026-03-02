@@ -7,8 +7,6 @@
 #   ./modelctl.sh status
 #   ./modelctl.sh logs
 #
-# Committed by Keystone with love ❤️
-
 set -euo pipefail
 
 IMAGE_TAG="nvcr.io/nvidia/vllm:26.01-py3"
