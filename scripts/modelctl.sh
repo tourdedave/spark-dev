@@ -124,8 +124,6 @@ start_model() {
   vllm_args=(
     serve "${model_id}"
     --gpu-memory-utilization "${gpu_util}"
-    --enable-auto-tool-choice
-    --tool-call-parser openai
   )
   if [[ -n "${max_model_len}" ]]; then
     vllm_args+=(--max-model-len "${max_model_len}")
