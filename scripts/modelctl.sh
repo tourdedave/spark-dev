@@ -121,7 +121,12 @@ start_model() {
 
   info "Starting ${size} container (${container_name}) with ${model_id} on :${host_port} …"
   local -a vllm_args
-  vllm_args=(serve "${model_id}" --gpu-memory-utilization "${gpu_util}")
+  vllm_args=(
+    serve "${model_id}"
+    --gpu-memory-utilization "${gpu_util}"
+    --enable-auto-tool-choice
+    --tool-call-parser llama3_json
+  )
   if [[ -n "${max_model_len}" ]]; then
     vllm_args+=(--max-model-len "${max_model_len}")
   fi
