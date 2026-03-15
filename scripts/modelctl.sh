@@ -28,7 +28,7 @@ PORT_LARGE="8002"
 
 MAX_MODEL_LEN_SMALL="32768"
 
-STARTUP_TIMEOUT_SECONDS="300"
+STARTUP_TIMEOUT_SECONDS="600"
 STARTUP_POLL_INTERVAL_SECONDS="2"
 
 color() { local c=$1; shift; echo -e "\033[${c}m$*\033[0m"; }
@@ -67,13 +67,6 @@ gpu_util_for_size() {
   esac
 }
 
-max_model_len_for_size() {
-  case "$1" in
-    small) echo "${MAX_MODEL_LEN_SMALL}" ;;
-    medium|large) echo "" ;;
-  esac
-}
-
 port_for_size() {
   case "$1" in
     small) echo "${PORT_SMALL}" ;;
@@ -98,16 +91,22 @@ start_model() {
   local model_id
   local gpu_util
   local host_port
-  local max_model_len
   local port_owner
   local attempts
+  local -a docker_env_args
 
   container_name="$(container_for_size "$size")"
   model_id="$(model_for_size "$size")"
   gpu_util="$(gpu_util_for_size "$size")"
   host_port="$(port_for_size "$size")"
-  max_model_len="$(max_model_len_for_size "$size")"
+  docker_env_args=()
 
+  if [[ -n "${HF_TOKEN:-}" ]]; then
+    docker_env_args+=(-e "HF_TOKEN=${HF_TOKEN}")
+  fi
+  if [[ -n "${HUGGING_FACE_HUB_TOKEN:-}" ]]; then
+    docker_env_args+=(-e "HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}")
+  fi
   if exists "${container_name}"; then
     info "Removing existing ${container_name} container …"
     docker rm -f "${container_name}" > /dev/null
@@ -125,14 +124,15 @@ start_model() {
     serve "${model_id}"
     --gpu-memory-utilization "${gpu_util}"
   )
-  if [[ -n "${max_model_len}" ]]; then
-    vllm_args+=(--max-model-len "${max_model_len}")
+  if [[ "${size}" == "small" ]]; then
+    vllm_args+=(--max-model-len "${MAX_MODEL_LEN_SMALL}")
   fi
 
   docker run -d --name "${container_name}" \
     --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
     -p "${host_port}:8000" \
     -v "${HF_CACHE}:/root/.cache/huggingface" \
+    "${docker_env_args[@]}" \
     "${IMAGE_TAG}" \
     vllm "${vllm_args[@]}" > /dev/null
 
